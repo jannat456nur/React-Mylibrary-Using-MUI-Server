@@ -26,11 +26,26 @@ async function run() {
     console.log('connected to db')
 
     const bookDataCollection = client.db('mylibrary').collection('bookData')
+    const feedbackCollection = client.db('mylibrary').collection('feedback')
 
     app.get('/bookDataCollection', async (req, res) => {
       const query = {}
       const books = await bookDataCollection.find(query).toArray()
       res.json(books)
+    })
+
+    app.post('/feedback', async (req, res) => {
+      const feedback = req.body
+      console.log(feedback)
+      const result = await feedbackCollection.insertOne(feedback)
+      console.log(result)
+      res.json(result)
+    })
+    app.get('/feedback', async (req, res) => {
+      const query = {}
+      const cursor = feedbackCollection.find(query)
+      const feedback = await cursor.toArray()
+      res.json(feedback)
     })
 
     // app.get("/doctors/:email", async (req, res) => {
@@ -40,12 +55,6 @@ async function run() {
     //   res.json(doctor);
     // });
     // // User sending to db
-    // app.post("/services", async (req, res) => {
-    //   const service = req.body;
-    //   const result = await servicesCollection.insertOne(service);
-    //   console.log(result);
-    //   res.json(result);
-    // });
 
     // // User upsert function
     // app.put("/users", async (req, res) => {
