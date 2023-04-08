@@ -27,13 +27,14 @@ async function run() {
 
     const bookDataCollection = client.db('mylibrary').collection('bookData')
     const feedbackCollection = client.db('mylibrary').collection('feedback')
-
+    const usersCollection = client.db('mylibrary').collection('users')
+    //get book data
     app.get('/bookDataCollection', async (req, res) => {
       const query = {}
       const books = await bookDataCollection.find(query).toArray()
       res.json(books)
     })
-
+    //post feedback
     app.post('/feedback', async (req, res) => {
       const feedback = req.body
       console.log(feedback)
@@ -41,11 +42,31 @@ async function run() {
       console.log(result)
       res.json(result)
     })
+    //get feedback
     app.get('/feedback', async (req, res) => {
       const query = {}
       const cursor = feedbackCollection.find(query)
       const feedback = await cursor.toArray()
       res.json(feedback)
+    })
+    //get users
+    app.post('/users', async (req, res) => {
+      const user = req.body
+      console.log(user)
+      const result = await usersCollection.insertOne(user)
+      console.log(result)
+      res.json(result)
+    })
+    //update user info
+    app.put('/users', async (req, res) => {
+      const user = req.body
+      console.log(user)
+      const filter = { email: user.email } //work like query
+      const options = { upsert: true }
+      const updateDoc = { $set: user }
+      const result = await usersCollection.updateOne(filter, updateDoc, options)
+      console.log(result)
+      res.json(result)
     })
 
     // app.get("/doctors/:email", async (req, res) => {
