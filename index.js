@@ -109,6 +109,14 @@ async function run() {
       const result = await bookDataCollection.deleteOne(query)
       res.json(result)
     })
+    //post books
+    app.post('/bookDataCollection', async (req, res) => {
+      const books = req.body
+      console.log(books)
+      const result = await bookDataCollection.insertOne(books)
+      console.log(result)
+      res.json(result)
+    })
     // // Update COURSE API
     // app.put('/users', async (req, res) => {
     //   const user = req.body
