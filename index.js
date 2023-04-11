@@ -11,8 +11,9 @@ const port = process.env.PORT || 5000
 // Middleware
 app.use(cors())
 app.use(express.json())
-
+// Connection URI and database name
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.69qz5.mongodb.net/?retryWrites=true&w=majority`
+// Create a new MongoClient
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -29,6 +30,7 @@ async function run() {
     const feedbackCollection = client.db('mylibrary').collection('feedback')
     const usersCollection = client.db('mylibrary').collection('users')
     const coursesCollection = client.db('mylibrary').collection('course')
+    const adminCollection = client.db('mylibrary').collection('admin')
     //get book data
     app.get('/bookDataCollection', async (req, res) => {
       const query = {}
@@ -50,7 +52,14 @@ async function run() {
       const feedback = await cursor.toArray()
       res.json(feedback)
     })
-    //get users
+    //get feedback
+    app.get('/admin', async (req, res) => {
+      const query = {}
+      const cursor = adminCollection.find(query)
+      const feedback = await cursor.toArray()
+      res.json(feedback)
+    })
+    //post users
     app.post('/users', async (req, res) => {
       const user = req.body
       console.log(user)
@@ -69,30 +78,24 @@ async function run() {
       console.log(result)
       res.json(result)
     })
-
+    //get users by email and password
     app.get('/users', async (req, res) => {
       const query = {}
       const cursor = usersCollection.find(query)
       const feedback = await cursor.toArray()
       res.json(feedback)
     })
-    // // Delete COURSE API
-    // app.delete('/courses/:id', async (req, res) => {
-    //   const id = req.params.id
-    //   const query = { _id: ObjectId(id) }
-    //   const result = await coursesCollection.deleteOne(query)
+
+    // app.put('/users/admin/:id', async (req, res) => {
+    //   const user = req.body
+    //   console.log(user)
+    //   const filter = { _id: ObjectId(req.params.id) } //work like query
+    //   const options = { upsert: true }
+    //   const updateDoc = { $set: { role: 'admin' } }
+    //   const result = await usersCollection.updateOne(filter, updateDoc, options)
+    //   console.log(result)
     //   res.json(result)
     // })
-    app.put('/users/admin/:id', async (req, res) => {
-      const user = req.body
-      console.log(user)
-      const filter = { _id: ObjectId(req.params.id) } //work like query
-      const options = { upsert: true }
-      const updateDoc = { $set: { role: 'admin' } }
-      const result = await usersCollection.updateOne(filter, updateDoc, options)
-      console.log(result)
-      res.json(result)
-    })
     // Delete FEEDBACK API
     app.delete('/feedback/:id', async (req, res) => {
       const id = req.params.id
@@ -117,15 +120,44 @@ async function run() {
       console.log(result)
       res.json(result)
     })
-    // // Update COURSE API
-    // app.put('/users', async (req, res) => {
-    //   const user = req.body
-    //   console.log('put', user)
-    //   const filter = { email: user.email }
-    //   const updateDoc = { $set: { role: 'admin' } }
-    //   const result = await usersCollection.updateOne(filter, updateDoc)
-    //   res.json(result)
+    // Set Admin role in database
+    // app.get('/users/:email', async (req, res) => {
+    //   const email = req.params.email
+    //   const query = { email: email }
+    //   console.log(query)
+    //   const user = await usersCollection.findOne(query)
+    //   console.log(user)
+    //   let isAdmin = false
+    //   if (user?.role === 'admin') {
+    //     isAdmin = true
+    //   }
+    //   res.json({ admin: isAdmin })
     // })
+    app.put('/users/admin', async (req, res) => {
+      const user = req.body
+      console.log(user, 'put')
+      const filter = { email: user.email }
+      const updateDoc = { $set: { role: 'admin' } }
+      const result = await usersCollection.updateOne(filter, updateDoc)
+      Console.log(result)
+      res.json(result)
+    })
+    app.get('/users/:email', async (req, res) => {
+      const email = req.params.email
+      const query = { email: email }
+      console.log(query)
+      const user = await usersCollection.findOne(query)
+      console.log(user)
+      let isAdmin = false
+      if (user?.role === 'admin') {
+        isAdmin = true
+      }
+      res.json({ admin: isAdmin })
+    })
+
+
+
+    
   } finally {
     //   await client.close();
   }
