@@ -121,18 +121,6 @@ async function run() {
       res.json(result)
     })
     // Set Admin role in database
-    // app.get('/users/:email', async (req, res) => {
-    //   const email = req.params.email
-    //   const query = { email: email }
-    //   console.log(query)
-    //   const user = await usersCollection.findOne(query)
-    //   console.log(user)
-    //   let isAdmin = false
-    //   if (user?.role === 'admin') {
-    //     isAdmin = true
-    //   }
-    //   res.json({ admin: isAdmin })
-    // })
     app.put('/users/admin', async (req, res) => {
       const user = req.body
       console.log(user, 'put')
@@ -142,6 +130,7 @@ async function run() {
       Console.log(result)
       res.json(result)
     })
+    //get users by email
     app.get('/users/:email', async (req, res) => {
       const email = req.params.email
       const query = { email: email }
@@ -154,9 +143,14 @@ async function run() {
       }
       res.json({ admin: isAdmin })
     })
-
-
-
+    //get users by email
+    app.delete('/users/:id', async (req, res) => {
+      const id = req.params.id
+      console.log(id, 'deleted')
+      const query = { _id: new ObjectId(id) }
+      const result = await usersCollection.deleteOne(query)
+      res.json(result)
+    })
     
   } finally {
     //   await client.close();
