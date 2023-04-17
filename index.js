@@ -3,6 +3,18 @@ const cors = require('cors')
 const { MongoClient, ServerApiVersion } = require('mongodb')
 const { response } = require('express')
 var ObjectId = require('mongodb').ObjectId
+// const ObjectId = require('mongodb').ObjectId
+
+// const { ObjectId } = require('bson')
+
+// const int = 12345
+
+// if (!Number.isInteger(int) || int < 0 || int > 4294967295) {
+//   throw new Error('Integer must be within the range of 0 to 4294967295')
+// }
+
+// const objectId = new ObjectId(int)
+
 require('dotenv').config()
 
 const app = express()
@@ -85,17 +97,6 @@ async function run() {
       const feedback = await cursor.toArray()
       res.json(feedback)
     })
-
-    // app.put('/users/admin/:id', async (req, res) => {
-    //   const user = req.body
-    //   console.log(user)
-    //   const filter = { _id: ObjectId(req.params.id) } //work like query
-    //   const options = { upsert: true }
-    //   const updateDoc = { $set: { role: 'admin' } }
-    //   const result = await usersCollection.updateOne(filter, updateDoc, options)
-    //   console.log(result)
-    //   res.json(result)
-    // })
     // Delete FEEDBACK API
     app.delete('/feedback/:id', async (req, res) => {
       const id = req.params.id
@@ -151,7 +152,15 @@ async function run() {
       const result = await usersCollection.deleteOne(query)
       res.json(result)
     })
-    
+    //get single book or specific book
+    app.get('/bookDataCollection/:id', async (req, res) => {
+      const id = req.params.id
+      console.log(id, 'details')
+      const query = { _id: new ObjectId(id) }
+      console.log(query)
+      const detail = await bookDataCollection.findOne(query)
+      res.json(detail)
+    })
   } finally {
     //   await client.close();
   }
